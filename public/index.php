@@ -12,6 +12,17 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response;
 });
 
+$database = [
+    [
+        "id" => 10,
+        "name" => "Room A"
+    ],
+    [
+        "id" => 2,
+        "name" => "Room B"
+    ]
+];
+
 $app->get('/rooms/{id}', function (Request $request, Response $response, $args) {
     //parametry z url
     $id = $args['id'];
