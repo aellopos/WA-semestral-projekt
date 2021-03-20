@@ -23,13 +23,20 @@ $database = [
     ]
 ];
 
-$app->get('/rooms/{id}', function (Request $request, Response $response, $args) {
+$app->get('/rooms/{id}', function (Request $request, Response $response, $args) use ($database) {
     //parametry z url
     $id = $args['id'];
-    $orderBy = $request->getQueryParams()['orderBy'];
+    $rooms = array_filter($database, fn($room) => $room["id"]== $id);
 
-    //vzdy odpovedet
-    $response->getBody()->write('This is room with ID='. $id .' ordered by'. $orderBy);
+    if (count($rooms) > 0) {
+        $room = $rooms[array_key_first($rooms)];
+        $json = json_encode($room);
+
+        $response->getBody()->write($json);
+        return $response;
+    } else {
+        return $response->withStatus(404, 'Room not found');
+    }
 
     return $response;
 });
