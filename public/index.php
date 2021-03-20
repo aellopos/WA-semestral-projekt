@@ -23,20 +23,4 @@ $app->get('/rooms/{id}', function (Request $request, Response $response, $args) 
     return $response;
 });
 
-$app->get('/mars/{id}', function (Request $request, Response $response, $args) {
-    $id = $args['id'];
-    $orderBy = $request->getQueryParams()['orderBy'];
-
-    $vozitka = ['MAR-A', 'MAR-B', 'MAR-C', 'ALPHA'];
-    
-    if(isset($orderBy)) {
-        sort($vozitka);
-        $response->getBody()->write('Stranka s vozitkem '. $vozitka[$id]);
-    } else {
-        $response->getBody()->write('Stranka s vozitkem '. $vozitka[$id]);
-    }
-
-    return $response;
-});
-
 $app->run();
