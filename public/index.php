@@ -1,44 +1,28 @@
 <?php
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Factory\AppFactory;
+
+use DI\Bridge\Slim\Bridge;
+use DI\Container;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$app = AppFactory::create();
+// Load env file
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . "/..");
+$dotenv->load();
 
-$app->get('/', function (Request $request, Response $response, $args) {
-    $response->getBody()->write("Hello world!");
-    return $response;
-});
+// Init app
+$container = new Container();
+$app = Bridge::create($container);
 
-$database = [
-    [
-        "id" => 10,
-        "name" => "Room A"
-    ],
-    [
-        "id" => 2,
-        "name" => "Room B"
-    ]
-];
+// Dependencies
+$container->set('db', fn() => new PDO("sqlite:../database/database.sqlite"));
 
-$app->get('/rooms/{id}', function (Request $request, Response $response, $args) use ($database) {
-    //parametry z url
-    $id = $args['id'];
-    $rooms = array_filter($database, fn($room) => $room["id"]== $id);
+// Middleware
+$middleware = include __DIR__ . '/../src/middleware.php';
+$middleware($app);
 
-    if (count($rooms) > 0) {
-        $room = $rooms[array_key_first($rooms)];
-        $json = json_encode($room);
+// Routes
+$routes = include __DIR__ . '/../src/routes.php';
+$routes($app);
 
-        $response->getBody()->write($json);
-        return $response;
-    } else {
-        return $response->withStatus(404, 'Room not found');
-    }
-
-    return $response;
-});
-
+// Start!
 $app->run();
